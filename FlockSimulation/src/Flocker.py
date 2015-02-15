@@ -18,8 +18,8 @@ class Flocker:
     # variables shared by all members of the flock
     flockerArray = []
     alignmentWeight = 0
-    cohesionWeight = 0
-    separationWeight = 0
+    cohesionWeight = .2
+    separationWeight = .2
 
     def __init__(self, _xPos, _yPos, _zPos, _xVel, _yVel, _zVel, _name):
         self.xPos = _xPos
@@ -79,7 +79,7 @@ class Flocker:
 
         for other in self.flockerArray:
             if other != self:
-                if self.distanceFrom(other) < 0.5:
+                if self.distanceFrom(other) < 3:
                     v[0] += other.xVel
                     v[1] += other.yVel
                     v[2] += other.zVel
@@ -110,7 +110,7 @@ class Flocker:
 
         for other in self.flockerArray:
             if other != self:
-                if self.distanceFrom(other) < 0.5:
+                if self.distanceFrom(other) < 3:
                     v[0] += other.xPos
                     v[1] += other.yPos
                     v[2] += other.zPos
@@ -145,7 +145,7 @@ class Flocker:
 
         for other in self.flockerArray:
             if other != self:
-                if self.distanceFrom(other) < 0.5:
+                if self.distanceFrom(other) < 3:
                     v[0] += other.xPos - self.xPos
                     v[1] += other.yPos - self.yPos
                     v[2] += other.zPos - self.zPos
