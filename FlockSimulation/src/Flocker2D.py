@@ -2,7 +2,7 @@ __author__ = 'Nate'
 
 import math
 
-class Flocker:
+class Flocker2D:
 
     """
     Class for members of the flock
@@ -17,16 +17,14 @@ class Flocker:
 
     # variables shared by all members of the flock
     flockerArray = []
-    alignmentWeight = 0
-    cohesionWeight = 1
-    separationWeight = 0
+    alignmentWeight = 0.6
+    cohesionWeight = 0.3
+    separationWeight = 0.3
 
-    def __init__(self, _xPos, _yPos, _zPos, _xVel, _yVel, _zVel, _name):
+    def __init__(self, _xPos, _zPos, _xVel, _zVel, _name):
         self.xPos = _xPos
-        self.yPos = _yPos
         self.zPos = _zPos
         self.xVel = _xVel
-        self.yVel = _yVel
         self.zVel = _zVel
         self.name = _name
         self.flockerArray.append(self)
@@ -37,7 +35,6 @@ class Flocker:
         :return: Nothing
         """
         self.xPos += self.xVel
-        self.yPos += self.yVel
         self.zPos += self.zVel
 
     def updateVelocity(self):
@@ -50,17 +47,22 @@ class Flocker:
         separation = self.computeSeparation()
 
         self.xVel += alignment[0] * self.alignmentWeight + cohesion[0] * self.cohesionWeight + separation[0] * self.separationWeight
-        self.yVel += alignment[1] * self.alignmentWeight + cohesion[1] * self.cohesionWeight + separation[1] * self.separationWeight
-        self.zVel += alignment[2] * self.alignmentWeight + cohesion[2] * self.cohesionWeight + separation[2] * self.separationWeight
+        self.zVel += alignment[1] * self.alignmentWeight + cohesion[1] * self.cohesionWeight + separation[1] * self.separationWeight
 
         # normalize the vector
-        length = math.sqrt((self.xVel * self.xVel) + (self.yVel * self.yVel) + (self.zVel * self.zVel))
+        length = math.sqrt((self.xVel * self.xVel) + (self.zVel * self.zVel))
         self.xVel /= length
-        self.yVel /= length
         self.zVel /= length
-        self.xVel *= 3
-        self.yVel *= 3
-        self.zVel *= 3
+
+        if self.xPos >= 5:
+            self.xVel = -math.fabs(self.xVel)
+        if self.xPos <= -5:
+            self.xVel = math.fabs(self.xVel)
+        if self.zPos >= 5:
+            self.zVel = -math.fabs(self.zVel)
+        if self.zPos <= -5:
+            self.zVel = math.fabs(self.zVel)
+
 
     def distanceFrom(self, other):
         """
@@ -68,7 +70,7 @@ class Flocker:
         :param other: other flocker
         :return: distance between self and other
         """
-        distance = math.sqrt((self.xPos - other.xPos) ** 2 + (self.yPos - other.yPos) ** 2 + (self.zPos - other.zPos) ** 2)
+        distance = math.sqrt((self.xPos - other.xPos) ** 2 + (self.zPos - other.zPos) ** 2)
         return distance
 
     def computeAlignment(self):
@@ -77,15 +79,14 @@ class Flocker:
         :return: vector v
         """
 
-        v = [0, 0, 0]
+        v = [0, 0]
         numNeighbors = 0
 
         for other in self.flockerArray:
             if other != self:
                 if self.distanceFrom(other) < 3:
                     v[0] += other.xVel
-                    v[1] += other.yVel
-                    v[2] += other.zVel
+                    v[1] += other.zVel
                     numNeighbors += 1
 
         if numNeighbors == 0:
@@ -93,14 +94,12 @@ class Flocker:
 
         v[0] /= numNeighbors
         v[1] /= numNeighbors
-        v[2] /= numNeighbors
         # normalize the vector
-        length = math.sqrt((v[0] * v[0]) + (v[1] * v[1]) + (v[2] * v[2]))
+        length = math.sqrt((v[0] * v[0]) + (v[1] * v[1]))
         if length == 0:
             return v
         v[0] /= length
         v[1] /= length
-        v[2] /= length
 
         return v
 
@@ -110,15 +109,14 @@ class Flocker:
         :return: vector v
         """
 
-        v = [0, 0, 0]
+        v = [0, 0]
         numNeighbors = 0
 
         for other in self.flockerArray:
             if other != self:
                 if self.distanceFrom(other) < 3:
                     v[0] += other.xPos
-                    v[1] += other.yPos
-                    v[2] += other.zPos
+                    v[1] += other.zPos
                     numNeighbors += 1
 
         if numNeighbors == 0:
@@ -126,18 +124,15 @@ class Flocker:
 
         v[0] /= numNeighbors
         v[1] /= numNeighbors
-        v[2] /= numNeighbors
         v[0] -= self.xPos
-        v[1] -= self.yPos
-        v[2] -= self.zPos
+        v[1] -= self.zPos
 
         # normalize the vector
-        length = math.sqrt((v[0] * v[0]) + (v[1] * v[1]) + (v[2] * v[2]))
+        length = math.sqrt((v[0] * v[0]) + (v[1] * v[1]))
         if length == 0:
             return v
         v[0] /= length
         v[1] /= length
-        v[2] /= length
 
         return v
 
@@ -147,15 +142,14 @@ class Flocker:
         :return: vector v
         """
 
-        v = [0, 0, 0]
+        v = [0, 0]
         numNeighbors = 0
 
         for other in self.flockerArray:
             if other != self:
                 if self.distanceFrom(other) < 3:
                     v[0] += other.xPos - self.xPos
-                    v[1] += other.yPos - self.yPos
-                    v[2] += other.zPos - self.zPos
+                    v[1] += other.zPos - self.zPos
                     numNeighbors += 1
 
         if numNeighbors == 0:
@@ -163,17 +157,14 @@ class Flocker:
 
         v[0] /= numNeighbors
         v[1] /= numNeighbors
-        v[2] /= numNeighbors
         v[0] *= -1
         v[1] *= -1
-        v[2] *= -1
 
         # normalize the vector
-        length = math.sqrt((v[0] * v[0]) + (v[1] * v[1]) + (v[2] * v[2]))
+        length = math.sqrt((v[0] * v[0]) + (v[1] * v[1]))
         if length == 0:
             return v
         v[0] /= length
         v[1] /= length
-        v[2] /= length
 
         return v
