@@ -17,9 +17,10 @@ class Flocker2D:
 
     # variables shared by all members of the flock
     flockerArray = []
-    alignmentWeight = 0.6
-    cohesionWeight = 0.3
-    separationWeight = 0.3
+    alignmentWeight = 1
+    cohesionWeight = 0
+    separationWeight = 0
+    speed = 3
 
     def __init__(self, _xPos, _zPos, _xVel, _zVel, _name):
         self.xPos = _xPos
@@ -28,6 +29,15 @@ class Flocker2D:
         self.zVel = _zVel
         self.name = _name
         self.flockerArray.append(self)
+
+    def setAlignment(self, weight):
+        self.alignmentWeight = weight
+
+    def setCohesion(self, weight):
+        self.cohesionWeight = weight
+
+    def setSeparation(self, weight):
+        self.separationWeight = weight
 
     def updatePostion(self):
         """
@@ -53,6 +63,8 @@ class Flocker2D:
         length = math.sqrt((self.xVel * self.xVel) + (self.zVel * self.zVel))
         self.xVel /= length
         self.zVel /= length
+        self.xVel *= self.speed
+        self.zVel *= self.speed
 
         if self.xPos >= 5:
             self.xVel = -math.fabs(self.xVel)
@@ -62,7 +74,6 @@ class Flocker2D:
             self.zVel = -math.fabs(self.zVel)
         if self.zPos <= -5:
             self.zVel = math.fabs(self.zVel)
-
 
     def distanceFrom(self, other):
         """
@@ -84,7 +95,7 @@ class Flocker2D:
 
         for other in self.flockerArray:
             if other != self:
-                if self.distanceFrom(other) < 3:
+                if self.distanceFrom(other) < 2:
                     v[0] += other.xVel
                     v[1] += other.zVel
                     numNeighbors += 1
@@ -114,7 +125,7 @@ class Flocker2D:
 
         for other in self.flockerArray:
             if other != self:
-                if self.distanceFrom(other) < 3:
+                if self.distanceFrom(other) < 2:
                     v[0] += other.xPos
                     v[1] += other.zPos
                     numNeighbors += 1
@@ -147,7 +158,7 @@ class Flocker2D:
 
         for other in self.flockerArray:
             if other != self:
-                if self.distanceFrom(other) < 3:
+                if self.distanceFrom(other) < 2:
                     v[0] += other.xPos - self.xPos
                     v[1] += other.zPos - self.zPos
                     numNeighbors += 1
