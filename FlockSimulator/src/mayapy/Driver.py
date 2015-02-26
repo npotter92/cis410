@@ -35,7 +35,7 @@ def simulate(numFlockers, numFrames, alignmentWeight, cohesionWeight, separation
         cmds.move(flocker.xPos, flocker.yPos, flocker.zPos)
         cmds.setKeyframe(flocker.name)
 
-    while time <= endTime:
+    while time < endTime:
 
         time += 12
 
