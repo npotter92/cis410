@@ -9,6 +9,15 @@ def simulate(numFlockers, numFrames, alignmentWeight, cohesionWeight, separation
     # Create the flock
     flock = Flock(alignmentWeight, cohesionWeight, separationWeight, speed, distance)
 
+    cmds.shadingNode('phong', asShader=True, name='Redwax')
+    cmds.select('Redwax')
+    cmds.sets(renderable=True, noSurfaceShader=True, empty=True, name='RedwaxSG')
+    cmds.connectAttr('Redwax.outColor', 'RedwaxSG.surfaceShader', f=True)
+    cmds.setAttr('Redwax.color', 1, 0, 0, type='double3')
+    cmds.setAttr('Redwax.cosinePower', 5)
+    cmds.setAttr('Redwax.reflectivity', 0)
+    cmds.setAttr('Redwax.specularColor', 1, 1, 1, type='double3')
+
     for i in range(numFlockers):
         xVel = random.randint(-9, 9)
         yVel = random.randint(-9, 9)
@@ -23,6 +32,8 @@ def simulate(numFlockers, numFrames, alignmentWeight, cohesionWeight, separation
             flock.addFlocker(xVel, 0, zVel, xPos, 0, zPos, fname)
 
         cmds.polySphere(name=fname, radius=0.2)
+        cmds.select(fname)
+        cmds.sets(e=True, forceElement='RedwaxSG')
 
     # Initialize time
     time = 0
