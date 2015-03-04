@@ -18,6 +18,25 @@ def simulate(numFlockers, numFrames, alignmentWeight, cohesionWeight, separation
     cmds.setAttr('Redwax.reflectivity', 0)
     cmds.setAttr('Redwax.specularColor', 1, 1, 1, type='double3')
 
+    cmds.shadingNode('blinn', asShader=True, name='Plastic')
+    cmds.select('Plastic')
+    cmds.sets(renderable=True, noSurfaceShader=True, empty=True, name='PlasticSG')
+    cmds.connectAttr('Plastic.outColor', 'PlasticSG.surfaceShader', f=True)
+    cmds.setAttr('Plastic.color', 0.9, 0.9, 0.9, type='double3')
+    cmds.setAttr('Plastic.eccentricity', 0.55)
+    cmds.setAttr('Plastic.specularRollOff', 1)
+    cmds.setAttr('Plastic.diffuse', 0.9)
+
+    cmds.directionalLight(rotation=(-90, 0, 0))
+
+    cmds.polyPlane(name='base')
+    cmds.setAttr('base.scaleX', 25)
+    cmds.setAttr('base.scaleZ', 25)
+    cmds.setAttr('base.translateY', -15)
+    cmds.select('base')
+    cmds.sets(e=True, forceElement='PlasticSG')
+
+
     for i in range(numFlockers):
         xVel = random.randint(-9, 9)
         yVel = random.randint(-9, 9)
@@ -58,6 +77,10 @@ def simulate(numFlockers, numFrames, alignmentWeight, cohesionWeight, separation
 
         cmds.currentTime(time)
         for flocker in flock.flockers:
-            cmds.select(flocker.name)
-            cmds.move(flocker.xPos, flocker.yPos, flocker.zPos)
+            fx = flocker.name + '.translateX'
+            fy = flocker.name + '.translateY'
+            fz = flocker.name + '.translateZ'
+            cmds.setAttr(fx, flocker.xPos)
+            cmds.setAttr(fy, flocker.yPos)
+            cmds.setAttr(fz, flocker.zPos)
             cmds.setKeyframe(flocker.name)
